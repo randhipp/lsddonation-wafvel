@@ -13,9 +13,9 @@
  * @package           Lsddonation_Wablas
  *
  * @wordpress-plugin
- * Plugin Name:       LSDDonation - WABLAS
- * Plugin URI:        https://lsdplugins.com/lsddonation/
- * Description:       This is a short description of what the plugin does. It's displayed in the WordPress admin area.
+ * Plugin Name:       - LSDDonation - WABLAS
+ * Plugin URI:        https://github.com/lsdplugins/lsddonation-wablas
+ * Description:       WhatsApp Notification for LSDDonation
  * Version:           1.0.0
  * Author:            LSD Plugins
  * Author URI:        https://lsdplugins.com
@@ -37,3 +37,6 @@ if ( ! defined( 'WPINC' ) ) {
  */
 define( 'LSDDONATION_WABLAS_VERSION', '1.0.0' );
 
+add_action( 'plugins_loaded', function(){
+	require_once plugin_dir_path( __FILE__ ) . 'class-wablas.php';
+});
