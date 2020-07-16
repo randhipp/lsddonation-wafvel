@@ -43,13 +43,29 @@ Class LSDDonationWABLAS Extends LSDD_Notification {
 
         $this->server   = $this->settings['settings']['server'];
         $this->apikey   = $this->settings['settings']['apikey'];
-
         
         add_action( 'wp_ajax_nopriv_lsdd_notification_wablas_test', array( $this, 'wablas_test' ) );
         add_action( 'wp_ajax_lsdd_notification_wablas_test', array( $this, 'wablas_test' ) );
+        add_action( 'lsdd_notification_hook', array( $this, 'lsdd_register_wablas_notification') );
     }
 
-    public static function log_wablas( $reciever, $event , $message ){
+    public function lsdd_register_wablas_notification( $data ){
+        if( lsdd_get_notification_status('lsdd_notification_wablas') ) {
+            $settings = get_option( 'lsdd_notification_wablas' );
+            $event = isset($data['notification_event']) ?  $data['notification_event'] : '';
+            $phone = isset($data['phone']) ?  $data['phone'] : '';
+        
+            $template =  get_option('lsdd_wablas_'. $event .'_template', true);
+        
+            if( $template ){
+                $this->send_whatsapp( $phone, $event, $template, $data );
+            }else{
+                $this->log_wablas( $phone, 'on ' . $event, __('please set template first', 'lsdd') );
+            }
+        }
+    }
+
+    public function log_wablas( $reciever, $event , $message ){
         $db = get_option( $this->id, true ); /// Get Log
         $log = isset( $db['log'] ) ? $db['log'] : array(); // Check Log
         if( count($log) >= 30 ) $log = array(); // Auto Reset Log
@@ -60,42 +76,52 @@ Class LSDDonationWABLAS Extends LSDD_Notification {
         update_option( $this->id, $db ); // Saving Log
     }
 
-    public static function send_whatsapp( $reciever, $message, $data ){
-        $settings = get_option( $this->id , true );
-        $server   = isset( $settings['settings']['server'] ) ? esc_attr( $settings['settings']['server'] ) : 'console.wablas.com';
-        $apikey   = isset( $settings['settings']['apikey'] ) ? esc_attr( $settings['settings']['apikey'] ) : '';
+    public function send_whatsapp( $reciever, $event, $message, $data ){
 
-        $payment = esc_attr( $data['gateway'] );
-        $message = str_replace("%donors%", esc_attr( ucfirst( $data['name'] ) ), $message);
-        $message = str_replace("%program%", get_the_title( $data['program_id'] ), $message);
-        $message = str_replace("%total%", lsdd_currency_format( true, $data['total'] ), $message);
-        $message = str_replace("%payment%", lsdd_payment_get( $payment, 'name' ) , $message);
-        $message = str_replace("%bank_code%", lsdd_payment_get( $payment, 'bankcode' ), $message);
-        $message = str_replace("%bank_swift%", lsdd_payment_get( $payment, 'swiftcode' ), $message);
-        $message = str_replace("%account%", lsdd_payment_get( $payment, 'account_number' ), $message);
-        $message = str_replace("%account_holder%", lsdd_payment_get( $payment, 'account_holder' ), $message);
-    
-        $body = array(
-            'phone'     => $reciever,
-            'message'   => $message,
-        );
-    
-        $payload = array(
-            'method' => 'POST',
-            'timeout' => 15,
-            'headers'     => array(
-                'Authorization' => $apikey,
-                'Content-Type'  => 'application/json',
-            ),
-            'httpversion' => '1.0',
-            'body' => json_encode($body),
-            'cookies' => array()
-        );
+        if( lsdd_get_notification_status('lsdd_notification_wablas') || $data == 'test' ){
 
-        $response = wp_remote_post( esc_url( $server . "/api/send-message" ) , $payload);
-        $response_back = json_decode(wp_remote_retrieve_body( $response ), TRUE );
+            $settings = get_option( $this->id , true );
+            $server   = isset( $settings['settings']['server'] ) ? esc_attr( $settings['settings']['server'] ) : 'console.wablas.com';
+            $apikey   = isset( $settings['settings']['apikey'] ) ? esc_attr( $settings['settings']['apikey'] ) : '';
 
-        $this->log_wablas( $reciever, $event, $message );
+            if( $data != 'test' ){
+                $payment = esc_attr( $data['gateway'] );
+                $message = str_replace("%donors%", esc_attr( ucfirst( $data['name'] ) ), $message);
+                $message = str_replace("%program%", get_the_title( $data['program_id'] ), $message);
+                $message = str_replace("%total%", lsdd_currency_format( true, $data['total'] ), $message);
+                $message = str_replace("%payment%", lsdd_payment_get( $payment, 'name' ) , $message);
+                $message = str_replace("%bank_code%", lsdd_payment_get( $payment, 'bankcode' ), $message);
+                $message = str_replace("%bank_swift%", lsdd_payment_get( $payment, 'swiftcode' ), $message);
+                $message = str_replace("%account%", lsdd_payment_get( $payment, 'account_number' ), $message);
+                $message = str_replace("%account_holder%", lsdd_payment_get( $payment, 'account_holder' ), $message);
+            }
+        
+            $body = array(
+                'phone'     => $reciever,
+                'message'   => $message,
+            );
+        
+            $payload = array(
+                'method' => 'POST',
+                'timeout' => 15,
+                'headers'     => array(
+                    'Authorization' => $apikey,
+                    'Content-Type'  => 'application/json',
+                ),
+                'httpversion' => '1.0',
+                'body' => json_encode($body),
+                'cookies' => array()
+            );
+
+            $response = wp_remote_post( esc_url( $server . "/api/send-message" ) , $payload);
+            $response_back = json_decode(wp_remote_retrieve_body( $response ), TRUE );
+
+            if( $response_back['status'] == false ){
+                $this->log_wablas( $reciever, $event, $response_back['message'] );
+            }
+
+            return $response_back;
+        }
     }
 
     public function wablas_test(){
@@ -104,7 +130,9 @@ Class LSDDonationWABLAS Extends LSDD_Notification {
         $_REQUEST   = array_map( 'stripslashes_deep', $_REQUEST );
         $phone      = esc_attr( $_REQUEST['phone'] );
 
-        // var_dump( $phone );
+        $this->send_whatsapp( $phone, 'on test', 'LSDDonation : Whatsapp Notification using WABLAS', 'test' );
+        echo 'action_success';
+        wp_die();
     }
 
     public function manage(){ ?>
@@ -133,7 +161,7 @@ Class LSDDonationWABLAS Extends LSDD_Notification {
                         <?php if( $log ) : ?>
                         <?php foreach ( array_reverse( $log ) as $key => $value) : ?>
                             <tr>
-                                <td><?php echo $value[0]; ?></td>
+                                <td><?php echo lsdd_date_format( $value[0], 'j M Y, H:i:s' ); ?></td>
                                 <td><?php echo $value[1]; ?></td>
                                 <td><?php echo $value[2]; ?></td>
                                 <td><?php echo $value[3]; ?></td>
@@ -383,4 +411,6 @@ endif;
     }
 }
 lsdd_notification_register( 'LSDDonationWABLAS' );
+
+
 ?>
