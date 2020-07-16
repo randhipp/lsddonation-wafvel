@@ -31,12 +31,33 @@ if ( ! defined( 'WPINC' ) ) {
 }
 
 /**
- * Currently plugin version.
- * Start at version 1.0.0 and use SemVer - https://semver.org
- * Rename this for your plugin and update it as you release new versions.
+ * @package LSDDonation
+ * @subpackage Addon
+ * Require LSDDonation
  */
-define( 'LSDDONATION_WABLAS_VERSION', '1.0.0' );
+add_action( 'admin_init',  'lsdd_wablas_addon_check' );
+function lsdd_wablas_addon_check() {
+	if ( is_admin() && current_user_can( 'activate_plugins' ) &&  !is_plugin_active( 'lsddonation/lsddonation.php' ) ) {
+		add_action( 'admin_notices', function(){
+			echo '<div class="error"><p>' . __( 'LSDDonation is required. Please activate it before activating LSDDonation - WABLAS.', 'lsdd-wablas' ) . '</p></div>';
+		});
 
-add_action( 'plugins_loaded', function(){
-	require_once plugin_dir_path( __FILE__ ) . 'class-wablas.php';
-});
+		deactivate_plugins( plugin_basename( __FILE__ ) ); 
+
+		if ( isset( $_GET['activate'] ) ) {
+			unset( $_GET['activate'] );
+		}
+	}
+}
+
+/**
+ * @package LSDDonation
+ * @subpackage Addon
+ * Require Parent to Active
+ */
+include_once(ABSPATH.'wp-admin/includes/plugin.php');
+if( is_plugin_active( 'lsddonation/lsddonation.php' ) ){
+	add_action( 'plugins_loaded', function(){
+		require_once plugin_dir_path( __FILE__ ) . 'class-wablas.php';
+	});
+}
