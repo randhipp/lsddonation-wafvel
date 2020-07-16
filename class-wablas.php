@@ -27,7 +27,7 @@ Class LSDDonationWABLAS Extends LSDD_Notification {
         // TestCase : Data Empty
         // update_option( 'lsdd_notification_wablas',null );
 
-        if( get_option( 'lsdd_notification_wablas', true ) == null ){
+        if( empty( get_option( 'lsdd_notification_wablas') ) ){
             $new = array();
             $new['order']['message']    = '#f7f7f7';
             $new['complete']['message'] = '#f7f7f7';
@@ -36,7 +36,7 @@ Class LSDDonationWABLAS Extends LSDD_Notification {
             update_option( 'lsdd_notification_wablas', $new );
         }
 
-        $this->settings       = get_option( $this->id, true ); 
+        $this->settings       = get_option( $this->id ); 
 
         $this->order_message    = $this->settings['order']['message'];
         $this->complete_message = $this->settings['complete']['message'];
@@ -55,7 +55,7 @@ Class LSDDonationWABLAS Extends LSDD_Notification {
             $event = isset($data['notification_event']) ?  $data['notification_event'] : '';
             $phone = isset($data['phone']) ?  $data['phone'] : '';
         
-            $template =  get_option('lsdd_wablas_'. $event .'_template', true);
+            $template =  get_option('lsdd_wablas_'. $event .'_template' );
         
             if( $template ){
                 $this->send_whatsapp( $phone, $event, $template, $data );
@@ -66,7 +66,7 @@ Class LSDDonationWABLAS Extends LSDD_Notification {
     }
 
     public function log_wablas( $reciever, $event , $message ){
-        $db = get_option( $this->id, true ); /// Get Log
+        $db = get_option( $this->id ); /// Get Log
         $log = isset( $db['log'] ) ? $db['log'] : array(); // Check Log
         if( count($log) >= 30 ) $log = array(); // Auto Reset Log
 
@@ -80,7 +80,7 @@ Class LSDDonationWABLAS Extends LSDD_Notification {
 
         if( lsdd_get_notification_status('lsdd_notification_wablas') || $data == 'test' ){
 
-            $settings = get_option( $this->id , true );
+            $settings = get_option( $this->id );
             $server   = isset( $settings['settings']['server'] ) ? esc_attr( $settings['settings']['server'] ) : 'console.wablas.com';
             $apikey   = isset( $settings['settings']['apikey'] ) ? esc_attr( $settings['settings']['apikey'] ) : '';
 
@@ -155,7 +155,7 @@ Class LSDDonationWABLAS Extends LSDD_Notification {
                     <table class="table-log table table-striped table-hover">
                         <tbody>
                         <?php 
-                            $db = get_option( 'lsdd_notification_wablas', true );
+                            $db = get_option( 'lsdd_notification_wablas' );
                             $log = isset( $db['log'] ) ? $db['log'] : array();
                         ?>
                         <?php if( $log ) : ?>
@@ -221,7 +221,7 @@ Salam Hangat
 LSD Plugin';
 update_option('lsdd_wablas_order_template', $lsdd_wablas_order_template);
 else:
-    $lsdd_wablas_order_template = get_option('lsdd_wablas_order_template', true);
+    $lsdd_wablas_order_template = get_option('lsdd_wablas_order_template');
 endif;
 ?>
                                  <textarea id="lsdd_wablas_order_template" class="form-input" placeholder="Notifikasi Untuk Donatur" rows="14"><?php echo $lsdd_wablas_order_template; ?></textarea>
@@ -267,7 +267,7 @@ Salam Hangat
 LSD Plugin';
 update_option('lsdd_wablas_complete_template', $lsdd_wablas_complete_template);
 else:
-$lsdd_wablas_complete_template = get_option('lsdd_wablas_complete_template', true);
+$lsdd_wablas_complete_template = get_option('lsdd_wablas_complete_template');
 endif;
 ?>
                             <textarea id="lsdd_wablas_complete_template" class="form-input" placeholder="Notifikasi Untuk Donatur Ketika Pembayaran Berhasil" rows="14"><?php echo $lsdd_wablas_complete_template; ?></textarea>
