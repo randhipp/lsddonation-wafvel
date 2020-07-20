@@ -89,11 +89,19 @@ Class LSDDonationWABLAS Extends LSDD_Notification {
                 $message = str_replace("%donors%", esc_attr( ucfirst( $data['name'] ) ), $message);
                 $message = str_replace("%program%", get_the_title( $data['program_id'] ), $message);
                 $message = str_replace("%total%", lsdd_currency_format( true, $data['total'] ), $message);
-                $message = str_replace("%payment%", lsdd_payment_get( $payment, 'name' ) , $message);
-                $message = str_replace("%bank_code%", lsdd_payment_get( $payment, 'bankcode' ), $message);
-                $message = str_replace("%bank_swift%", lsdd_payment_get( $payment, 'swiftcode' ), $message);
-                $message = str_replace("%account%", lsdd_payment_get( $payment, 'account_number' ), $message);
-                $message = str_replace("%account_holder%", lsdd_payment_get( $payment, 'account_holder' ), $message);
+                $message = str_replace("%payment_name%", lesc_attr( $data['payment_name'] ) , $message);
+
+                $message = str_replace("%code_label%", esc_attr( $data['code_label'] ) , $message);
+                $message = str_replace("%code_value%", esc_attr( $data['code_value'] ), $message);
+
+                $message = str_replace("%account_label%", esc_attr( $data['account_label'] ) , $message);
+                $message = str_replace("%account_code%", esc_attr( $data['account_code'] ), $message);
+                $message = str_replace("%account_number%", esc_attr( $data['account_number'] ) , $message);
+
+                $message = str_replace("%holder_label%", esc_attr( $data['holder_label'] ), $message);
+                $message = str_replace("%holder_value%", esc_attr( $data['holder_value'] ) , $message);
+
+                $message = str_replace("%instruction_text%", esc_attr( $data['instruction_text'] ) , $message);
             }
         
             $body = array(
@@ -116,8 +124,10 @@ Class LSDDonationWABLAS Extends LSDD_Notification {
             $response = wp_remote_post( esc_url( $server . "/api/send-message" ) , $payload);
             $response_back = json_decode(wp_remote_retrieve_body( $response ), TRUE );
 
-            if( $response_back['status'] ){
+            if( $response_back['status'] == false ){
                 $this->log_wablas( $reciever, $event, $response_back['message'] );
+            }else{
+                $this->log_wablas( $reciever, $event, $message );
             }
 
             return $response_back;
@@ -181,17 +191,20 @@ Class LSDDonationWABLAS Extends LSDD_Notification {
                         <div class="column col-3" style="padding:0 10px 0 0;">
         
                             <div id="instruction">
-
                                 <!-- Marker -->
                                 <p id="tag" class="mt-2">
                                     <kbd>%donors%</kbd><code>John Doe</code><br>
-                                    <kbd>%program%</kbd><code>Save Our Forest</code> <br>
-                                    <kbd>%total%</kbd><code>$5</code> <br>
-                                    <kbd>%payment%</kbd><code>Paypal</code> <br>
-                                    <kbd>%bank_code%</kbd><code>(014)</code> <br>
-                                    <kbd>%bank_swift%</kbd><code>BRINIDJA</code> <br>
-                                    <kbd>%account%</kbd><code>lsdplugins@gmail.com</code> <br>
-                                    <kbd>%account_holder%</kbd><code>LSDPlugins</code> <br>
+                                    <kbd>%program%</kbd><code>Bantu Sesama</code> <br>
+                                    <kbd>%total%</kbd><code>Rp 10.000</code> <br>
+                                    <kbd>%payment_name%</kbd><code>Transfer Bank - BCA</code> <br>
+                                    <kbd>%code_label%</kbd><code>BIC/SWIFT : </code> <br>
+                                    <kbd>%code_value%</kbd><code>BRINIDJA</code> <br>
+                                    <kbd>%account_label%</kbd><code>Rekening : </code> <br>
+                                    <kbd>%account_code%</kbd><code>(014)</code> <br>
+                                    <kbd>%account_number%</kbd><code>6541217162</code> <br>
+                                    <kbd>%holder_label%</kbd><code>Atas Nama : </code> <br>
+                                    <kbd>%holder_value%</kbd><code>lsdplugins@gmail.com</code> <br>
+                                    <kbd>%instruction_text%</kbd><code>Silahkan Lakukan Pembayaran</code> <br>
                                 </p>
                             </div>
 
@@ -212,10 +225,12 @@ Berikut ini Pesanan Anda :
 Total Pembayaran :
 %total%
 
-Silahkan Lakukan Pembayaran
-%payment%
-%bank_code% %account%
-a.n %account_holder%
+Silahkan Selesaikan Pembayaran
+%code_label%%code_value%
+%account_label% %account_code% %account_number%
+%holder_label% %holder_value%
+
+%instruction_text%
 
 Salam Hangat
 LSD Plugin';
@@ -242,7 +257,8 @@ endif;
                                 <!-- Subject Email -->
                                 <p id="tag" class="mt-2">
                                     <kbd>%donors%</kbd><code>John Doe</code><br>
-                                    <kbd>%program%</kbd><code>Save Our Forest</code> <br>
+                                    <kbd>%program%</kbd><code>Bantu Sesama</code><br>
+                                    <kbd>%total%</kbd><code>Rp 10.000</code> <br>
                                 </p>
                             </div>
 
@@ -255,9 +271,9 @@ endif;
 // update_option('lsdd_wablas_complete_template', '');
 $lsdd_wablas_complete_template = '';
 if( empty( get_option('lsdd_wablas_complete_template') ) ) :
-$lsdd_wablas_complete_template = 'Terimakasih Bpk/Ibu %pemesan%
+$lsdd_wablas_complete_template = 'Terimakasih Bpk/Ibu %donors%
 
-Donasi %donors%,
+Donasi %program%,
 Sebesar %total%
 telah kami terima pembayarannya.
 
