@@ -13,7 +13,7 @@
  * @package           Lsddonation_Wablas
  *
  * @wordpress-plugin
- * Plugin Name:       - LSDDonation - WABLAS
+ * Plugin Name:       LSDDonation - WABLAS
  * Plugin URI:        https://github.com/lsdplugins/lsddonation-wablas
  * Description:       WhatsApp Notification for LSDDonation
  * Version:           1.0.0

@@ -29,8 +29,8 @@ Class LSDDonationWABLAS Extends LSDD_Notification {
 
         if( empty( get_option( 'lsdd_notification_wablas') ) ){
             $new = array();
-            $new['order']['message']    = '#f7f7f7';
-            $new['complete']['message'] = '#f7f7f7';
+            // $new['order']['message']    = '';
+            // $new['complete']['message'] = '';
             $new['settings']['server']  = '';
             $new['settings']['apikey']  = '';
             update_option( 'lsdd_notification_wablas', $new );
@@ -116,7 +116,7 @@ Class LSDDonationWABLAS Extends LSDD_Notification {
             $response = wp_remote_post( esc_url( $server . "/api/send-message" ) , $payload);
             $response_back = json_decode(wp_remote_retrieve_body( $response ), TRUE );
 
-            if( $response_back['status'] == false ){
+            if( $response_back['status'] ){
                 $this->log_wablas( $reciever, $event, $response_back['message'] );
             }
 
@@ -285,7 +285,7 @@ endif;
                         <!-- Sender -->
                         <div class="form-group">
                             <div class="col-3 col-sm-12">
-                            <label class="form-label" for="country"><?php _e( 'Server', "lsdd-wablas" ); ?></label>
+                            <label class="form-label" for="country"><?php _e( 'Domain API', "lsdd-wablas" ); ?></label>
                             </div>
                             <div class="col-9 col-sm-12">
                             <input class="form-input" type="text" name="server" placeholder="console.wablas.com" style="width:320px" value="<?php esc_attr_e( isset( $this->server ) ? $this->server : null ); ?>">
