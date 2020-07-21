@@ -25,37 +25,78 @@ Class LSDDonationWABLAS Extends LSDD_Notification {
     public function __construct() {
 
         // TestCase : Data Empty
-        // update_option( 'lsdd_notification_wablas',null );
+        // update_option( $this->id,null );
+$template_order = 'Kepada YTH Bpk/Ibu *%donors%*
+Berikut ini Pesanan Anda :
+%program%
+Total Pembayaran :
+%total%
 
-        if( empty( get_option( 'lsdd_notification_wablas') ) ){
+Silahkan Selesaikan Pembayaran
+%code_label% %code_value%
+%account_label% %account_code% %account_number%
+%holder_label% %holder_value%
+
+%instruction_text%
+
+Salam Hangat
+*LSDDonasi*';
+
+$template_complete = 'Terimakasih *%donors%*
+atas donasi yang telah Anda berikan
+
+Donasi %program% akan kami sampaikan 
+kepada orang-orang yang membutuhkan
+
+Semoga menjadi amal ibadah anda 
+dan Tuhan memberi keberkahan 
+atas apa yang Anda berikan.
+
+Salam Hangat
+*LSDDonasi*';
+
+        if( empty( get_option( $this->id ) ) ){
             $new = array();
-            // $new['order']['message']    = '';
-            // $new['complete']['message'] = '';
-            $new['settings']['server']  = '';
-            $new['settings']['apikey']  = '';
-            update_option( 'lsdd_notification_wablas', $new );
+            $new['messages']['order']       = $template_order;
+            $new['messages']['complete']    = $template_complete;
+            $new['settings']['server']      = '';
+            $new['settings']['apikey']      = '';
+            update_option( $this->id , $new );
         }
 
-        $this->settings       = get_option( $this->id ); 
+    
+        $settings               = get_option( $this->id ); 
+        $this->order_message    = $settings['messages']['order'];
+        $this->complete_message = $settings['messages']['complete'];
+        $this->server           = $settings['settings']['server'];
+        $this->apikey           = $settings['settings']['apikey'];
 
-        $this->order_message    = $this->settings['order']['message'];
-        $this->complete_message = $this->settings['complete']['message'];
+        if( empty( get_option( $this->id )['messages']['order'] ) ||  empty( get_option( $this->id )['messages']['complete'] ) ){
+            $new['messages']['order']       = $template_order;
+            $new['messages']['complete']    = $template_complete;
+            $new['settings']['server']      = $settings['settings']['server'];
+            $new['settings']['apikey']      = $settings['settings']['apikey'];
+            update_option( $this->id , $new );
+        }
 
-        $this->server   = $this->settings['settings']['server'];
-        $this->apikey   = $this->settings['settings']['apikey'];
         
+
         add_action( 'wp_ajax_nopriv_lsdd_notification_wablas_test', array( $this, 'wablas_test' ) );
         add_action( 'wp_ajax_lsdd_notification_wablas_test', array( $this, 'wablas_test' ) );
+
+        add_action( 'wp_ajax_nopriv_lsdd_notification_wablas_save', array( $this, 'wablas_save' ) );
+        add_action( 'wp_ajax_lsdd_notification_wablas_save', array( $this, 'wablas_save' ) );
+        
         add_action( 'lsdd_notification_hook', array( $this, 'lsdd_register_wablas_notification') );
     }
 
     public function lsdd_register_wablas_notification( $data ){
-        if( lsdd_get_notification_status('lsdd_notification_wablas') ) {
-            $settings = get_option( 'lsdd_notification_wablas' );
+        if( lsdd_get_notification_status(  $this->id ) ) {
+            $settings = get_option(  $this->id );
             $event = isset($data['notification_event']) ?  $data['notification_event'] : '';
             $phone = isset($data['phone']) ?  $data['phone'] : '';
         
-            $template =  get_option('lsdd_wablas_'. $event .'_template' );
+            $template = $settings['messages'][$event]; //get message by event
         
             if( $template ){
                 $this->send_whatsapp( $phone, $event, $template, $data );
@@ -78,7 +119,7 @@ Class LSDDonationWABLAS Extends LSDD_Notification {
 
     public function send_whatsapp( $reciever, $event, $message, $data ){
 
-        if( lsdd_get_notification_status('lsdd_notification_wablas') || $data == 'test' ){
+        if( lsdd_get_notification_status( $this->id ) || $data == 'test' ){
 
             $settings = get_option( $this->id );
             $server   = isset( $settings['settings']['server'] ) ? esc_attr( $settings['settings']['server'] ) : 'console.wablas.com';
@@ -89,7 +130,7 @@ Class LSDDonationWABLAS Extends LSDD_Notification {
                 $message = str_replace("%donors%", esc_attr( ucfirst( $data['name'] ) ), $message);
                 $message = str_replace("%program%", get_the_title( $data['program_id'] ), $message);
                 $message = str_replace("%total%", lsdd_currency_format( true, $data['total'] ), $message);
-                $message = str_replace("%payment_name%", lesc_attr( $data['payment_name'] ) , $message);
+                $message = str_replace("%payment%", esc_attr( $data['payment_name'] ) , $message);
 
                 $message = str_replace("%code_label%", esc_attr( $data['code_label'] ) , $message);
                 $message = str_replace("%code_value%", esc_attr( $data['code_value'] ), $message);
@@ -145,6 +186,22 @@ Class LSDDonationWABLAS Extends LSDD_Notification {
         wp_die();
     }
 
+    public function wablas_save(){
+        if ( ! check_ajax_referer( 'lsdd_nonce', 'security' ) )  wp_send_json_error( 'Invalid security token sent.' );
+
+        $_REQUEST  = array_map( 'stripslashes_deep', $_REQUEST );
+        $type      = $_REQUEST['type'] == 'order' ? 'order' : 'complete';
+        $content   = $_REQUEST['content'];
+
+        // Saving Template
+        $option = get_option( $this->id );
+        $option['messages'][$type] = $content;
+        update_option( $this->id , $option );
+
+        echo 'action_success';
+        wp_die();
+    }
+
     public function manage(){ ?>
         <div class="tabs-wrapper">
             <input type="radio" name="<?php echo $this->name; ?>" id="log_<?php echo $this->name; ?>" checked="checked"/>
@@ -165,7 +222,7 @@ Class LSDDonationWABLAS Extends LSDD_Notification {
                     <table class="table-log table table-striped table-hover">
                         <tbody>
                         <?php 
-                            $db = get_option( 'lsdd_notification_wablas' );
+                            $db = get_option( $this->id );
                             $log = isset( $db['log'] ) ? $db['log'] : array();
                         ?>
                         <?php if( $log ) : ?>
@@ -196,7 +253,7 @@ Class LSDDonationWABLAS Extends LSDD_Notification {
                                     <kbd>%donors%</kbd><code>John Doe</code><br>
                                     <kbd>%program%</kbd><code>Bantu Sesama</code> <br>
                                     <kbd>%total%</kbd><code>Rp 10.000</code> <br>
-                                    <kbd>%payment_name%</kbd><code>Transfer Bank - BCA</code> <br>
+                                    <kbd>%payment%</kbd><code>Transfer - BCA</code> <br>
                                     <kbd>%code_label%</kbd><code>BIC/SWIFT : </code> <br>
                                     <kbd>%code_value%</kbd><code>BRINIDJA</code> <br>
                                     <kbd>%account_label%</kbd><code>Rekening : </code> <br>
@@ -204,43 +261,17 @@ Class LSDDonationWABLAS Extends LSDD_Notification {
                                     <kbd>%account_number%</kbd><code>6541217162</code> <br>
                                     <kbd>%holder_label%</kbd><code>Atas Nama : </code> <br>
                                     <kbd>%holder_value%</kbd><code>lsdplugins@gmail.com</code> <br>
-                                    <kbd>%instruction_text%</kbd><code>Silahkan Lakukan Pembayaran</code> <br>
+                                    <kbd>%instruction_text%</kbd><code>Instruksi berdasarkan metode pembayaran</code> <br>
                                 </p>
                             </div>
 
-                            <button data-type="order" class="btn btn-primary input-group-btn lsdd_notification_email_save"><?php _e( 'Save', 'lsdd' ); ?></button> 
+                            <button data-type="order" class="btn btn-primary input-group-btn lsdd_wablas_templates_save"><?php _e( 'Save', 'lsdd' ); ?></button> 
                         </div>
 
                         <!-- Email Preview -->
                         <div class="column col-8" style="margin-left:35px;">
                             <!-- Migration Alert -->
-
-<?php 
-// update_option('lsdd_wablas_order_template', '');
-$lsdd_wablas_order_template = '';
-if( empty( get_option('lsdd_wablas_order_template') ) ) :
-$lsdd_wablas_order_template = 'Kepada YTH Bpk/Ibu %donors%
-Berikut ini Pesanan Anda :
-%program%
-Total Pembayaran :
-%total%
-
-Silahkan Selesaikan Pembayaran
-%code_label%%code_value%
-%account_label% %account_code% %account_number%
-%holder_label% %holder_value%
-
-%instruction_text%
-
-Salam Hangat
-LSD Plugin';
-update_option('lsdd_wablas_order_template', $lsdd_wablas_order_template);
-else:
-    $lsdd_wablas_order_template = get_option('lsdd_wablas_order_template');
-endif;
-?>
-                                 <textarea id="lsdd_wablas_order_template" class="form-input" placeholder="Notifikasi Untuk Donatur" rows="14"><?php echo $lsdd_wablas_order_template; ?></textarea>
-                     
+                            <textarea data-event="order" class="form-input lsdd_wablas_message_templates" placeholder="Pesan Notifikasi Untuk Donatur ketika Memesan" rows="14"><?php echo esc_attr( $this->order_message ); ?></textarea>
                         </div>
 
                     </div>
@@ -258,37 +289,15 @@ endif;
                                 <p id="tag" class="mt-2">
                                     <kbd>%donors%</kbd><code>John Doe</code><br>
                                     <kbd>%program%</kbd><code>Bantu Sesama</code><br>
-                                    <kbd>%total%</kbd><code>Rp 10.000</code> <br>
                                 </p>
                             </div>
 
-                            <button data-type="complete" class="btn btn-primary input-group-btn lsdd_notification_email_save"><?php _e( 'Save', 'lsdd' ); ?></button> 
+                            <button data-type="complete" class="btn btn-primary input-group-btn lsdd_wablas_templates_save"><?php _e( 'Save', 'lsdd' ); ?></button> 
                         </div>
 
                         <div class="column col-8" style="margin-left:35px;">
                             <!-- Migration Alert -->
-<?php 
-// update_option('lsdd_wablas_complete_template', '');
-$lsdd_wablas_complete_template = '';
-if( empty( get_option('lsdd_wablas_complete_template') ) ) :
-$lsdd_wablas_complete_template = 'Terimakasih Bpk/Ibu %donors%
-
-Donasi %program%,
-Sebesar %total%
-telah kami terima pembayarannya.
-
-Semoga bisa bermanfaat bagi mereka
-
-Salam Hangat
-LSD Plugin';
-update_option('lsdd_wablas_complete_template', $lsdd_wablas_complete_template);
-else:
-$lsdd_wablas_complete_template = get_option('lsdd_wablas_complete_template');
-endif;
-?>
-                            <textarea id="lsdd_wablas_complete_template" class="form-input" placeholder="Notifikasi Untuk Donatur Ketika Pembayaran Berhasil" rows="14"><?php echo $lsdd_wablas_complete_template; ?></textarea>
-                                
-
+                            <textarea data-event="complete" class="form-input lsdd_wablas_message_templates" placeholder="Pesan Notifikasi Untuk Donatur Ketika Pembayaran Berhasil" rows="14"><?php echo esc_attr( $this->complete_message ); ?></textarea>
                         </div>
                     </div>
                     <!-- Content Email ketika Lunas -->
@@ -372,18 +381,17 @@ endif;
         </style>
 
         <script>
-            // On Email Editor Save
-            jQuery(document).on("click",".lsdd_notification_email_save",function( e ) {
+            // WABLAS Save Template
+            jQuery(document).on("click",".lsdd_wablas_templates_save",function( e ) {
                 jQuery(this).addClass('loading');
-                let lsdd_email_type = jQuery(this).attr('data-type');
-                let that = this;
+                let type    = jQuery(this).attr('data-type');
+                let content = jQuery('.lsdd_wablas_message_templates[data-event="'+ type +'"]').val();
+                let that    = this;
 
                 jQuery.post( lsdd_adm.ajax_url, { 
-                    action : 'lsdd_notification_email_template',
-                    email_type : lsdd_email_type,
-                    data : jQuery('#lsdd-editor-' + lsdd_email_type ).html(),
-                    header_bg : jQuery('#lsdd_header_bg_' + lsdd_email_type ).val(),
-                    subject : jQuery('#lsdd_subject_' + lsdd_email_type ).val(),
+                    action  : 'lsdd_notification_wablas_save',
+                    type    : type,
+                    content : content,
                     security : lsdd_adm.ajax_nonce,
                     }, function( response ){
                         if( response.trim() == 'action_success' ){
@@ -391,11 +399,11 @@ endif;
                         }
                     }).fail(function(){
                         alert('Failed, please check your internet');
+                        location.reload();
                     }
                 );
             });
 
-  
             // On User Sending Test Email
             jQuery(document).on("click","#lsdd_wablas_sendtest",function( e ) {
                 var wablas_number = jQuery('#lsdd_wablas_test').val();
