@@ -12,6 +12,9 @@ WhatsApp Notification for LSDDonation using WABLAS Service
 
 == Changelog ==
 
+= 1.0.1 =
+* Fix Bug Save Templates
+
 = 1.0.0 =
 * On Order Notification
 * On Complete Notification

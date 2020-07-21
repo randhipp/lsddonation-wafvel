@@ -13,7 +13,7 @@ Class LSDDonationWABLAS Extends LSDD_Notification {
     public $id       = 'lsdd_notification_wablas';
     public $name     = 'WABLAS';
     public $type     = 'whatsapp';
-    public $doc_url  = 'https://docs.lsdplugins.com/docs/menggunakan-notifikasi-email/';
+    public $doc_url  = 'https://docs.lsdplugins.com/docs/cara-menggunakan-notifikasi-whatsapp/';
 
     protected $settings         = array();
     protected $log              = array();
@@ -78,8 +78,6 @@ Salam Hangat
             $new['settings']['apikey']      = $settings['settings']['apikey'];
             update_option( $this->id , $new );
         }
-
-        
 
         add_action( 'wp_ajax_nopriv_lsdd_notification_wablas_test', array( $this, 'wablas_test' ) );
         add_action( 'wp_ajax_lsdd_notification_wablas_test', array( $this, 'wablas_test' ) );
