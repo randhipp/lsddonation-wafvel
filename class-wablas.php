@@ -179,7 +179,7 @@ Salam Hangat
         $_REQUEST   = array_map( 'stripslashes_deep', $_REQUEST );
         $phone      = esc_attr( $_REQUEST['phone'] );
 
-        $this->send_whatsapp( $phone, 'on test', 'LSDDonation : Whatsapp Notification using WABLAS', 'test' );
+        $this->send_whatsapp( $phone, 'on test', 'LSDDonation : Whatsapp Notification Test using WABLAS', 'test' );
         echo 'action_success';
         wp_die();
     }
