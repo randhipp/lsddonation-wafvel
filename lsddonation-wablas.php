@@ -16,7 +16,7 @@
  * Plugin Name:       LSDDonation - WABLAS
  * Plugin URI:        https://github.com/lsdplugins/lsddonation-wablas
  * Description:       WhatsApp Notification for LSDDonation
- * Version:           1.0.
+ * Version:           1.0.1
  * Author:            LSD Plugins
  * Author URI:        https://lsdplugins.com
  * License:           GPL-3.0+
