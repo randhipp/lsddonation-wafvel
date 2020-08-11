@@ -127,7 +127,7 @@ Salam Hangat
                 $payment = esc_attr( $data['gateway'] );
                 $message = str_replace("%donors%", esc_attr( ucfirst( $data['name'] ) ), $message);
                 $message = str_replace("%program%", get_the_title( $data['program_id'] ), $message);
-                $message = str_replace("%total%", lsdd_currency_format( true, $data['total'] ), $message);
+                $message = str_replace("%total%", lsdd_currency_format( true, lsdd_currency_clear( $data['total'] ) ), $message);
                 $message = str_replace("%payment%", esc_attr( $data['payment_name'] ) , $message);
 
                 $message = str_replace("%code_label%", esc_attr( $data['code_label'] ) , $message);
