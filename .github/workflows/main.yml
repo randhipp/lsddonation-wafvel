@@ -23,8 +23,11 @@ jobs:
       with:
         fetch-depth: 2
     - name: FTP-Deploy-Action
-      uses: SamKirkland/FTP-Deploy-Action@master
+      uses: SamKirkland/FTP-Deploy-Action@4.0.0
       with:
-        ftp-server: ${{ secrets.FTP_SRV }}
-        ftp-username: ${{ secrets.FTP_USER }}
-        ftp-password: ${{ secrets.FTP_PWD }}
+        # ftp server
+        server: ${{ secrets.FTP_SRV }}
+        # ftp username
+        username: ${{ secrets.FTP_USER }}
+        # ftp password
+        password: ${{ secrets.FTP_PWD }}
