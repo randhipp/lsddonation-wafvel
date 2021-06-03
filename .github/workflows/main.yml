@@ -30,4 +30,4 @@ jobs:
         # ftp username
         username: ${{ secrets.FTP_USER }}
         # ftp password
-        password: ${{ secrets.FTP_PWD }}
+        password: ${{ secrets.FTP_PASSWORD }}
