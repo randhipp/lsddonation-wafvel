@@ -1,5 +1,5 @@
 <?php
-namespace LSDDonation\MyNotif;
+namespace LSDDonation\Wablas;
 
 // Exit if accessed directly
 if (!defined('ABSPATH')) {

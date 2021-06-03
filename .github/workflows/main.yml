@@ -1,6 +1,6 @@
 # This is a basic workflow to help you get started with Actions
 
-name: CI
+name: BETA
 
 # Controls when the action will run. 
 on:
@@ -25,10 +25,7 @@ jobs:
     - name: FTP-Deploy-Action
       uses: SamKirkland/FTP-Deploy-Action@4.0.0
       with:
-        # ftp server
         server: ftp.lsdplugins.com
-        # ftp username
         username: ${{ secrets.FTP_USER }}
-        # ftp password
         password: ${{ secrets.FTP_PASSWORD }}
         server-dir: /wp-content/plugins/lsddonation-wablas/
