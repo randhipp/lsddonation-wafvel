@@ -18,11 +18,12 @@ jobs:
   deploy:
     name: Deploy
     runs-on: ubuntu-latest
+
     steps:
     - uses: actions/checkout@v1
-    - name: git-ftp push
+    - name: git-ftp init
       uses: sebastianpopp/git-ftp-action@releases/v3
       with:
-        url: "ftp://ftp.lsdplugins.com/wp-content/plugins/"
+        url: "ftp://ftp.lsdplugins.com/wp-content/plugins/lsddonation-wablas"
         user: ${{ secrets.FTP_USER }}
         password: ${{ secrets.FTP_PWD }}
