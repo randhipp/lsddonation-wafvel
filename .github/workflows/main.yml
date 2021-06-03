@@ -18,12 +18,13 @@ jobs:
   deploy:
     name: Deploy
     runs-on: ubuntu-latest
-
     steps:
-    - uses: actions/checkout@v1
-    - name: git-ftp init
-      uses: sebastianpopp/git-ftp-action@releases/v3
+    - uses: actions/checkout@v2.1.0
       with:
-        url: "ftp://ftp.lsdplugins.com/wp-content/plugins/lsddonation-wablas"
-        user: ${{ secrets.FTP_USER }}
-        password: ${{ secrets.FTP_PWD }}
+        fetch-depth: 2
+    - name: FTP-Deploy-Action
+      uses: SamKirkland/FTP-Deploy-Action@master
+      with:
+        ftp-server: "ftp://ftp.lsdplugins.com/wp-content/plugins/lsddonation-wablas"
+        ftp-username: ${{ secrets.FTP_USER }}
+        ftp-password: ${{ secrets.FTP_PWD }}
