@@ -25,6 +25,6 @@ jobs:
     - name: FTP-Deploy-Action
       uses: SamKirkland/FTP-Deploy-Action@master
       with:
-        ftp-server: "ftp://ftp.lsdplugins.com/wp-content/plugins/lsddonation-wablas"
+        ftp-server: ${{ secrets.FTP_SRV }}
         ftp-username: ${{ secrets.FTP_USER }}
         ftp-password: ${{ secrets.FTP_PWD }}
