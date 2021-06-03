@@ -1,4 +1,6 @@
 <?php
+namespace LSDDonation\Wablas;
+
 // Exit if accessed directly.
 if (!defined('ABSPATH')) {
     exit;

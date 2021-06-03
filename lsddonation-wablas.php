@@ -26,7 +26,7 @@ add_action('admin_init', 'lsdd_wablas_dependency');
 
 // Define Constant
 defined('LSDD_WABLAS_VERSION') or define('LSDD_WABLAS_VERSION', '1.0.4');
-defined('LSDD_WABLAS_REQUIRED') or define('LSDD_WABLAS_REQUIRED', '4.0.4');
+defined('LSDD_WABLAS_REQUIRED') or define('LSDD_WABLAS_REQUIRED', '4.0.5');
 defined('LSDD_WABLAS_BASE') or define('LSDD_WABLAS_BASE', plugin_basename(__FILE__));
 defined('LSDD_WABLAS_PATH') or define('LSDD_WABLAS_PATH', plugin_dir_path(__FILE__));
 defined('LSDD_WABLAS_URL') or define('LSDD_WABLAS_URL', plugin_dir_url(__FILE__));
