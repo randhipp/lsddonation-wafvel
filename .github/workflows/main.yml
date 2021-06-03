@@ -31,4 +31,4 @@ jobs:
         username: ${{ secrets.FTP_USER }}
         # ftp password
         password: ${{ secrets.FTP_PASSWORD }}
-        server-dir: /wp-content/plugins/lsddonation-wablas
+        server-dir: /wp-content/plugins/lsddonation-wablas/
