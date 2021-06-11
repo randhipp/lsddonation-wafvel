@@ -4,7 +4,7 @@
  * Plugin Name:       LSDDonasi - WABLAS
  * Plugin URI:        https://lsdplugins.com/
  * Description:       Notifikasi Whatsapp WABLAS untuk LSDDonasi
- * Version:           1.0.4
+ * Version:           1.0.5
  * Author:            LSD Plugins
  * Author URI:        https://lsdplugins.com/
  * License:           GPL-3.0+
@@ -25,7 +25,7 @@ if (!defined('ABSPATH')) {
 add_action('admin_init', 'lsdd_wablas_dependency');
 
 // Define Constant
-defined('LSDD_WABLAS_VERSION') or define('LSDD_WABLAS_VERSION', '1.0.4');
+defined('LSDD_WABLAS_VERSION') or define('LSDD_WABLAS_VERSION', '1.0.5');
 defined('LSDD_WABLAS_REQUIRED') or define('LSDD_WABLAS_REQUIRED', '4.0.5');
 defined('LSDD_WABLAS_BASE') or define('LSDD_WABLAS_BASE', plugin_basename(__FILE__));
 defined('LSDD_WABLAS_PATH') or define('LSDD_WABLAS_PATH', plugin_dir_path(__FILE__));

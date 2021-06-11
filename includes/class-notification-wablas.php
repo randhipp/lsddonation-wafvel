@@ -78,7 +78,9 @@ Salam Hangat
         $whatsapp_settings = isset($settings['settings']) ? $settings['settings'] : array();
         $this->apikey = isset($whatsapp_settings['apikey']) ? $whatsapp_settings['apikey'] : '';
         $this->server = isset($whatsapp_settings['server']) ? $whatsapp_settings['server'] : '';
-
+        $this->server = str_replace( 'http://', '', $this->server );
+        $this->server = str_replace( 'https://', '', $this->server );
+        
         // Action for Test and Save
         add_action('wp_ajax_lsdd_whatsapp_wablas_test', array($this, 'testing'));
         add_action('wp_ajax_lsdd_whatsapp_wablas_save', array($this, 'save'));
@@ -103,7 +105,6 @@ Salam Hangat
         //     'program' => 'Bantu Sesama',
         // );
         // $this->templating( $completed );
-
     }
 
     /**
@@ -220,6 +221,7 @@ Salam Hangat
      * Send Message via REST API
      * Support Text
      * TODO :: Support Media 
+     * TyghI8jIpsKbZvNnU4gGssUabv8flHCrqse0I5EepuJb2vycGJe8hIW0MvmU2vod
      * 
      * @since 4.0.0
      * @param array $data
@@ -239,7 +241,7 @@ Salam Hangat
             'method' => 'POST',
             'timeout' => 30,
             'headers' => array(
-                'apikey' => $this->apikey,
+                'Authorization' => $this->apikey,
                 'Content-Type' => 'application/json',
             ),
             'httpversion' => '1.0',
@@ -250,7 +252,7 @@ Salam Hangat
         $response = wp_remote_post( esc_url( $this->server . "/api/send-message" ) , $payload);
         $response_back = json_decode(wp_remote_retrieve_body($response), TRUE );
 
-        if (isset($response_back['status']) && $response_back['status'] != 'FAILED' ) {
+        if (isset($response_back['status']) && $response_back['status'] == 200 ) {
             $this->log($obj['receiver'], 'On ' . ucfirst($obj['event']), $response_back['message']);
             return true;
         } else {
@@ -493,7 +495,7 @@ Salam Hangat
                             </div>
                             <div class="col-9 col-sm-12">
                                 <input class="form-input" type="text" name="server" placeholder="console.wablas.com" style="width:320px" value="<?php esc_attr_e(isset($this->server) ? $this->server : null);?>">
-                                <small>hapus http:// atau https:// pada domain </small>
+                                <small>contoh : console.wablas.com </small>
                             </div>
                         </div>
                         
