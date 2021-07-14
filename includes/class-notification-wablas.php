@@ -77,7 +77,7 @@ Salam Hangat
 
         $whatsapp_settings = isset($settings['settings']) ? $settings['settings'] : array();
         $this->apikey = isset($whatsapp_settings['apikey']) ? $whatsapp_settings['apikey'] : '';
-        $this->server = isset($whatsapp_settings['server']) ? $whatsapp_settings['server'] : '';
+        $this->server = isset($whatsapp_settings['server']) ? $whatsapp_settings['server'] : 'https://api.wafvel.com';
         $this->server = str_replace( 'http://', '', $this->server );
         $this->server = str_replace( 'https://', '', $this->server );
         
@@ -231,6 +231,7 @@ Salam Hangat
     {
 
         $body = array(
+            'token' => $this->apikey,
             'phone' => $obj['receiver'],
             'message' => $obj['message'],
             // 'type' =>'image',
@@ -241,7 +242,6 @@ Salam Hangat
             'method' => 'POST',
             'timeout' => 30,
             'headers' => array(
-                'Authorization' => $this->apikey,
                 'Content-Type' => 'application/json',
             ),
             'httpversion' => '1.0',
@@ -249,11 +249,11 @@ Salam Hangat
             'cookies' => array(),
         );
         
-        $response = wp_remote_post( esc_url( $this->server . "/api/send-message" ) , $payload);
+        $response = wp_remote_post( esc_url( $this->server . "/api/whatsapp/async/send" ) , $payload);
         $response_back = json_decode(wp_remote_retrieve_body($response), TRUE );
 
         if (isset($response_back['status']) && $response_back['status'] == 200 ) {
-            $this->log($obj['receiver'], 'On ' . ucfirst($obj['event']), $response_back['message']);
+            $this->log($obj['receiver'], 'On ' . ucfirst($obj['event']), $response_back['status']." | ".$response_back['queue_id']);
             return true;
         } else {
             $this->log($obj['receiver'], 'Failed !', $obj['message']);
@@ -494,8 +494,8 @@ Salam Hangat
                                 <label class="form-label" for="country"><?php _e('Server Wafvel', "lsddonation");?></label>
                             </div>
                             <div class="col-9 col-sm-12">
-                                <input class="form-input" type="text" name="server" placeholder="console.wafvel.com" style="width:320px" value="<?php esc_attr_e(isset($this->server) ? $this->server : null);?>">
-                                <small>contoh : console.wafvel.com </small>
+                                <input class="form-input" type="text" name="server" placeholder="api.wafvel.com" style="width:320px" value="<?php esc_attr_e(isset($this->server) ? $this->server : null);?>">
+                                <small>contoh : api.wafvel.com </small>
                             </div>
                         </div>
                         
