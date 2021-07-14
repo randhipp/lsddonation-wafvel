@@ -28,4 +28,4 @@ jobs:
         server: ftp.lsdplugins.com
         username: ${{ secrets.FTP_USER }}
         password: ${{ secrets.FTP_PASSWORD }}
-        server-dir: /wp-content/plugins/lsddonation-wablas/
+        server-dir: /wp-content/plugins/lsddonation-wafvel/

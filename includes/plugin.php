@@ -1,5 +1,5 @@
 <?php
-namespace LSDDonation\Wablas;
+namespace LSDDonation\Wafvel;
 
 // Exit if accessed directly.
 if (!defined('ABSPATH')) {
@@ -13,13 +13,13 @@ class Plugin
      */
     public static function load()
     {
-        $wablas = new self();
+        $wafvel = new self();
 
         // Bind to Init
-        add_action('plugins_loaded', [$wablas, 'loaded']);
+        add_action('plugins_loaded', [$wafvel, 'loaded']);
 
-        register_activation_hook(LSDD_WABLAS_BASE, [$wablas, 'activation']);
-        register_deactivation_hook(LSDD_WABLAS_BASE, [$wablas, 'uninstall']);
+        register_activation_hook(LSDD_WAFVEL_BASE, [$wafvel, 'activation']);
+        register_deactivation_hook(LSDD_WAFVEL_BASE, [$wafvel, 'uninstall']);
     }
 
     /**
@@ -29,10 +29,10 @@ class Plugin
      */
     public function loaded()
     {
-        load_plugin_textdomain('lsddonation-wablas', false, LSDD_WABLAS_PATH . '/languages/');
+        load_plugin_textdomain('lsddonation-wafvel', false, LSDD_WAFVEL_PATH . '/languages/');
 
         // Includes Notification Method
-        require_once LSDD_WABLAS_PATH . 'includes/class-notification-wablas.php';
+        require_once LSDD_WAFVEL_PATH . 'includes/class-notification-wafvel.php';
     }
 
     /**
@@ -43,7 +43,7 @@ class Plugin
      */
     public function activation()
     {
-        require_once LSDD_WABLAS_PATH . 'core/common/class-activator.php';
+        require_once LSDD_WAFVEL_PATH . 'core/common/class-activator.php';
         Activator::activate();
     }
 
@@ -55,7 +55,7 @@ class Plugin
      */
     public function uninstall()
     {
-        require_once LSDD_WABLAS_PATH . 'core/common/class-deactivator.php';
+        require_once LSDD_WAFVEL_PATH . 'core/common/class-deactivator.php';
         Deactivator::deactivate();
     }
 
@@ -73,7 +73,7 @@ class Plugin
     public function __clone()
     {
         // Cloning instances of the class is forbidden.
-        _doing_it_wrong(__FUNCTION__, esc_html__('Something went wrong.', 'lsddonation-wablas'), LSDD_WABLAS_VERSION);
+        _doing_it_wrong(__FUNCTION__, esc_html__('Something went wrong.', 'lsddonation-wafvel'), LSDD_WAFVEL_VERSION);
     }
 
     /**
@@ -87,7 +87,7 @@ class Plugin
     public function __wakeup()
     {
         // Unserializing instances of the class is forbidden.
-        _doing_it_wrong(__FUNCTION__, esc_html__('Something went wrong.', 'lsddonation-wablas'), LSDD_WABLAS_VERSION);
+        _doing_it_wrong(__FUNCTION__, esc_html__('Something went wrong.', 'lsddonation-wafvel'), LSDD_WAFVEL_VERSION);
     }
 }
 

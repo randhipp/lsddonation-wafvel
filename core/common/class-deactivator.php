@@ -1,5 +1,5 @@
 <?php
-namespace LSDDonation\Wablas;
+namespace LSDDonation\Wafvel;
 
 // Exit if accessed directly
 if (!defined('ABSPATH')) {
